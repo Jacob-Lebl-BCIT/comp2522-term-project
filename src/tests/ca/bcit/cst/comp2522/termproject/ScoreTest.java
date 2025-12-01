@@ -1,4 +1,5 @@
-import ca.bcit.cst.comp2522.termproject.Score;
+package ca.bcit.cst.comp2522.termproject;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

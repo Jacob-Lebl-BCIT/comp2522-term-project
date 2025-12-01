@@ -55,6 +55,9 @@ public final class MyGame
     private static final String LETTERS_DIRECTORY = "lettersASL";
     private static final String IMAGE_EXTENSION = ".gif";
     private static final String TITLE = "ASL Learning Ladder";
+    private static final int MASTERY_SYNC_SIMULATION_ATTEMPTS_COUNT = 100;
+    private static final double MASTERY_PERCENT_DIVISOR = 100.0;
+    private static final double ZERO_MASTERY_THRESHOLD = 0.0;
 
     private static final AtomicBoolean javaFXPlatformInitialized = new AtomicBoolean(false);
 
@@ -251,6 +254,8 @@ public final class MyGame
     /**
      * Synchronizes MasteryTracker with Player's letter mastery data.
      * Called after loading a player from file.
+     * Uses a higher simulation count (100) to minimize rounding errors when converting
+     * mastery percentages back to attempt counts.
      */
     private void syncMasteryTrackerFromPlayer()
     {
@@ -264,17 +269,18 @@ public final class MyGame
             final double mastery;
             mastery = currentPlayer.getLetterMastery(letter);
 
-            if(mastery > 0.0)
+            if(mastery > ZERO_MASTERY_THRESHOLD)
             {
-                final int totalAttempts = 10;
-                final int correctAttempts = (int) (mastery / 100.0 * totalAttempts);
+                final int correctAttempts;
+                correctAttempts = (int) Math.round(mastery / MASTERY_PERCENT_DIVISOR *
+                                                   MASTERY_SYNC_SIMULATION_ATTEMPTS_COUNT);
 
                 for(int i = 0; i < correctAttempts; i++)
                 {
                     masteryTracker.recordAttempt(letter, true);
                 }
 
-                for(int i = correctAttempts; i < totalAttempts; i++)
+                for(int i = correctAttempts; i < MASTERY_SYNC_SIMULATION_ATTEMPTS_COUNT; i++)
                 {
                     masteryTracker.recordAttempt(letter, false);
                 }
@@ -571,6 +577,7 @@ public final class MyGame
     /**
      * Finishes the current test and shows results.
      * Updates player mastery data from test results.
+     * Checks if player can unlock the next tier and does so if conditions are met.
      */
     private void finishTest()
     {
@@ -581,15 +588,56 @@ public final class MyGame
 
         currentPlayer.recordTestCompletion(result.getCorrectAnswers());
 
+        checkAndUnlockNextTier();
+
         showResultsScreen(result);
     }
 
     /**
+     * Checks if the player can unlock the next tier of letters.
+     * If so, unlocks it and displays a notification.
+     * This method ensures progression through the game's tier system.
+     */
+    private void checkAndUnlockNextTier()
+    {
+        if(currentPlayer.canUnlockNextTier())
+        {
+            try
+            {
+                final int previousUnlockedCount;
+                previousUnlockedCount = currentPlayer.getUnlockedLetters().size();
+
+                currentPlayer.unlockNextTier();
+
+                final int newUnlockedCount;
+                newUnlockedCount = currentPlayer.getUnlockedLetters().size();
+
+                final int newLettersCount;
+                newLettersCount = newUnlockedCount - previousUnlockedCount;
+
+                System.out.println("Congratulations! You unlocked " + newLettersCount + " new letters!");
+                System.out.println("Total unlocked letters: " + newUnlockedCount);
+            }
+            catch(final IllegalStateException e)
+            {
+                // No more tiers to unlock or conditions not met
+                System.out.println("No new tier unlocked: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
      * Updates player's letter mastery from MasteryTracker data.
+     * Iterates over ALL tracked letters (not just unlocked ones) to ensure
+     * mastery progress is captured even for letters the player doesn't have unlocked yet.
+     * This is critical for tier unlocking logic.
      */
     private void updatePlayerMasteryFromTracker()
     {
-        for(final char letter : currentPlayer.getUnlockedLetters())
+        final java.util.Set<Character> trackedLetters;
+        trackedLetters = masteryTracker.getAllTrackedSkills();
+
+        for(final char letter : trackedLetters)
         {
             final double mastery;
             mastery = masteryTracker.getMasteryPercent(letter);

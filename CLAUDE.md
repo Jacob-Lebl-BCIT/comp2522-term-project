@@ -70,7 +70,7 @@ Fact line 3
 3. Allow 2 guesses per question, track scoring
 4. Display cumulative score across multiple games
 5. On quit: append to `score.txt`, check/announce high score
-6. **Must pass ScoreTest.java unit tests**
+6. **Must pass ca.bcit.cst.comp2522.termproject.ScoreTest.java unit tests**
 
 **Scoring**: First attempt = 2 points, second attempt = 1 point, incorrect = 0 points
 
@@ -113,7 +113,7 @@ Fact line 3
 
 ## Testing
 
-**ScoreTest.java**: Unit tests for Score class and scoring algorithm
+**ca.bcit.cst.comp2522.termproject.ScoreTest.java**: Unit tests for Score class and scoring algorithm
 - Must pass ALL tests
 - Tests validate score calculation and file output format
 
@@ -198,7 +198,7 @@ User has configured JavaFX (not Swing) with javafx.controls, javafx.fxml in modu
 - [x] Implement WordGame question generation (3 types)
 - [x] Implement WordGame scoring and game loop with play-again
 - [x] Implement score.txt file writing and high score tracking with averages
-- [x] Pass all ScoreTest.java unit tests
+- [x] Pass all ca.bcit.cst.comp2522.termproject.ScoreTest.java unit tests
 
 ### NumberGame Components
 - [x] Create GridCell interface

@@ -31,7 +31,7 @@ If the user enters wrong data (not w, W, n, N, M, m, q, or Q), give an error mes
 
 ## WordGame
 
-> **CAUTION:** Make sure your scoring passes the provided **ScoreTest unit tests**. This game uses the files provided to you: a.txt, b.txt, …, z.txt. **Do not change the data in these files.**
+> **CAUTION:** Make sure your scoring passes the provided **ca.bcit.cst.comp2522.termproject.ScoreTest unit tests**. This game uses the files provided to you: a.txt, b.txt, …, z.txt. **Do not change the data in these files.**
 
 ### Data Model
 
@@ -167,7 +167,7 @@ When the user quits the WordGame, if they do **not** have the new **"high score"
 
 ### Unit Testing
 
-Pass **all of the ScoreTest.java JUnit test cases**. Use the provided ScoreTest.java file unit tests to show whether your Score class, score.txt, and scoring algorithms are all functioning correctly.
+Pass **all of the ca.bcit.cst.comp2522.termproject.ScoreTest.java JUnit test cases**. Use the provided ca.bcit.cst.comp2522.termproject.ScoreTest.java file unit tests to show whether your Score class, score.txt, and scoring algorithms are all functioning correctly.
 
 ---
 
@@ -291,7 +291,7 @@ Submit the following files to the learning hub before **December 1** in the Acti
 | Requirement | Max Score |
 |---|---|
 | WordGame functionality | 40 |
-| High score functionality (pass the ScoreTest tests) | 15 |
+| High score functionality (pass the ca.bcit.cst.comp2522.termproject.ScoreTest tests) | 15 |
 | NumberGame functionality | 30 |
 | applications.txt has data for each lesson | 10 |
 | MyGame is fun and unique and clear how to play | 30 |

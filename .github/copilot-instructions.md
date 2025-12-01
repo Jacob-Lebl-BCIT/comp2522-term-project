@@ -691,7 +691,7 @@ public class Country
   - `int numCorrectFirstAttempt`
   - `int numCorrectSecondAttempt`
   - `int numIncorrectTwoAttempts`
-- Must pass ScoreTest.java unit tests
+- Must pass ca.bcit.cst.comp2522.termproject.ScoreTest.java unit tests
 - Calculate points: first attempt = 2 points, second attempt = 1 point, incorrect = 0 points
 
 **DateTime handling:**

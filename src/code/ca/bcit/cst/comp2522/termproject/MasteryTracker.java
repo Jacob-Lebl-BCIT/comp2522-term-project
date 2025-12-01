@@ -172,6 +172,21 @@ public final class MasteryTracker<T>
     }
 
     /**
+     * Returns a set of all skills that have been tracked.
+     * This includes all skills with at least one attempt recorded.
+     * Returns a copy to prevent external modification of internal state.
+     *
+     * @return set of all tracked skills
+     */
+    public java.util.Set<T> getAllTrackedSkills()
+    {
+        final java.util.Set<T> skills;
+        skills = new java.util.HashSet<>(masteryMap.keySet());
+
+        return skills;
+    }
+
+    /**
      * Inner class that encapsulates tracking data for a single skill.
      * Tracks total attempts and correct attempts to calculate mastery percentage.
      *
