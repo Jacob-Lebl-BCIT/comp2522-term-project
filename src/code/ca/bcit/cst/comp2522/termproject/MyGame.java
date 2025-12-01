@@ -339,9 +339,10 @@ public final class MyGame
         currentTest.prepareTest();
         currentTest.displayInstructions();
 
-        showTestScreen();
+        // Present the very first question
+        advanceToNextQuestion();   // <-- this calls presentQuestion() and starts the timer
 
-        advanceToNextQuestion();
+        showTestScreen();          // now the UI can safely display the first image
     }
 
     /**
