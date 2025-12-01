@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -33,6 +34,10 @@ public final class WordGame
     private static final int NUMBER_OF_QUESTION_TYPES         = 3;
     private static final int QUESTION_TYPE_CAPITAL_TO_COUNTRY = 0;
     private static final int QUESTION_TYPE_COUNTRY_TO_CAPITAL = 1;
+
+    private static final String PROMPT_PLAY_AGAIN         = "Would you like to play again? (Yes/No): ";
+    private static final String ERROR_INVALID_PLAY_AGAIN  = "Invalid input. Please enter Yes or No.";
+    private static final String SESSION_STATS_HEADER      = "=== Session Statistics ===";
 
     private final World   world;
     private final Score   currentScore;
@@ -65,11 +70,14 @@ public final class WordGame
     /**
      * Starts and runs the WordGame.
      * Loads country data from text files, presents 10 random geography
-     * questions, tracks scoring across attempts, displays cumulative scores,
-     * and saves high scores to file on exit.
+     * questions per game, tracks scoring across attempts, displays cumulative scores,
+     * and allows the user to play multiple games in one session.
+     * Saves high scores to file when user chooses to quit.
      */
     public void play()
     {
+        boolean playAgain;
+
         if (world.isEmpty())
         {
             System.out.println("Cannot start game: no country data available.");
@@ -81,13 +89,21 @@ public final class WordGame
         System.out.println("You have 2 attempts per question.");
         System.out.println("Loaded " + world.getCountryCount() + " countries.\n");
 
-        currentScore.incrementGamesPlayed();
+        playAgain = true;
 
-        for (int questionNumber = 1; questionNumber <= TOTAL_QUESTIONS_PER_GAME; questionNumber++)
+        while (playAgain)
         {
-            System.out.println("Question " + questionNumber + " of " + TOTAL_QUESTIONS_PER_GAME + ":");
-            askQuestion();
-            System.out.println();
+            currentScore.incrementGamesPlayed();
+
+            for (int questionNumber = 1; questionNumber <= TOTAL_QUESTIONS_PER_GAME; questionNumber++)
+            {
+                System.out.println("Question " + questionNumber + " of " + TOTAL_QUESTIONS_PER_GAME + ":");
+                askQuestion();
+                System.out.println();
+            }
+
+            displaySessionStats();
+            playAgain = promptPlayAgain();
         }
 
         displayFinalScore();
@@ -195,25 +211,88 @@ public final class WordGame
     }
 
     /**
-     * Displays the final score summary at the end of the game.
-     * Shows counts for first attempt correct, second attempt correct,
-     * incorrect answers, and total score calculated.
-     * Saves the score to score.txt and checks if it's a new high score.
+     * Prompts the user if they want to play another game.
+     * Accepts "Yes" or "No" in any letter case (or "y"/"n").
+     * Re-prompts with error message on invalid input.
+     *
+     * @return true if user wants to play again, false otherwise
      */
-    private void displayFinalScore()
+    private boolean promptPlayAgain()
+    {
+        while (true)
+        {
+            System.out.print(PROMPT_PLAY_AGAIN);
+
+            final String input;
+            input = userInputScanner.nextLine().trim();
+
+            if (input.equalsIgnoreCase("yes") || input.equalsIgnoreCase("y"))
+            {
+                return true;
+            }
+            else if (input.equalsIgnoreCase("no") || input.equalsIgnoreCase("n"))
+            {
+                return false;
+            }
+            else
+            {
+                System.out.println(ERROR_INVALID_PLAY_AGAIN);
+            }
+        }
+    }
+
+    /**
+     * Calculates the average score per game for a Score object.
+     * Formula: total points divided by number of games played.
+     *
+     * @param score the Score object to calculate average for
+     * @return average points per game as a double
+     */
+    private double calculateAverage(final Score score)
+    {
+        final int totalPoints;
+        final int games;
+        final double average;
+
+        totalPoints = score.getScore();
+        games = score.getGamesPlayed();
+        average = (double) totalPoints / games;
+
+        return average;
+    }
+
+    /**
+     * Displays current session statistics after each game.
+     * Shows games played, correct/incorrect attempts, total score, and average.
+     * Does NOT save to file or check high scores (that happens when session ends).
+     */
+    private void displaySessionStats()
     {
         final int totalScore;
+        final double average;
 
-        System.out.println("=== Game Over ===");
+        System.out.println("\n" + SESSION_STATS_HEADER);
+        System.out.println("Games played this session: " + currentScore.getGamesPlayed());
         System.out.println("Correct on first attempt:  " + currentScore.getCorrectFirstAttempt());
         System.out.println("Correct on second attempt: " + currentScore.getCorrectSecondAttempt());
         System.out.println("Incorrect after 2 attempts: " + currentScore.getIncorrectTwoAttempts());
 
         totalScore = currentScore.getScore();
-        System.out.println("Total Score: " + totalScore + " points");
+        average = calculateAverage(currentScore);
 
+        System.out.println("Total Score: " + totalScore + " points");
+        System.out.println(String.format("Average: %.2f points per game\n", average));
+    }
+
+    /**
+     * Displays the final score summary at the end of the session.
+     * Saves the score to score.txt and checks if it's a new high score.
+     * Called only when user chooses not to play again.
+     */
+    private void displayFinalScore()
+    {
         saveScoreToFile();
-        checkAndAnnounceHighScore(totalScore);
+        checkAndAnnounceHighScore();
     }
 
     /**
@@ -235,39 +314,85 @@ public final class WordGame
     }
 
     /**
-     * Checks if the current score is a new high score by reading all
-     * previous scores from score.txt using Score.readScoresFromFile().
-     * If the current score is the highest, announces it to the player.
+     * Checks if the current session's average score is a new high score.
+     * Reads all previous scores from score.txt, calculates averages,
+     * and announces results with proper formatting showing averages (not totals),
+     * previous record details including date and time.
      * Handles file reading errors gracefully.
-     *
-     * @param currentTotalScore the total score from the current game
      */
-    private void checkAndAnnounceHighScore(final int currentTotalScore)
+    private void checkAndAnnounceHighScore()
     {
         try
         {
+            final double currentAverage;
             final List<Score> previousScores;
+
+            currentAverage = calculateAverage(currentScore);
             previousScores = Score.readScoresFromFile(SCORE_FILE_PATH);
 
             if (previousScores.isEmpty())
             {
-                System.out.println("New high score: " + currentTotalScore + " points!");
+                System.out.println(String.format(
+                    "CONGRATULATIONS! You are the new high score with an average of %.2f points per game!",
+                    currentAverage
+                ));
                 return;
             }
 
-            final int highestPreviousScore;
-            highestPreviousScore = previousScores.stream()
-                                                 .mapToInt(Score::getScore)
-                                                 .max()
-                                                 .orElse(0);
+            Score highestScore;
+            double highestAverage;
 
-            if (currentTotalScore > highestPreviousScore)
+            highestScore = null;
+            highestAverage = 0.0;
+
+            for (final Score score : previousScores)
             {
-                System.out.println("New high score: " + currentTotalScore + " points!");
+                final double average;
+                average = calculateAverage(score);
+
+                if (average > highestAverage)
+                {
+                    highestAverage = average;
+                    highestScore = score;
+                }
             }
-            else if (currentTotalScore == highestPreviousScore && highestPreviousScore > 0)
+
+            if (currentAverage > highestAverage)
             {
-                System.out.println("Tied the high score: " + currentTotalScore + " points!");
+                final DateTimeFormatter formatter;
+                final String formattedDateTime;
+
+                formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 'at' HH:mm:ss");
+                formattedDateTime = highestScore.getDateTimePlayed().format(formatter);
+
+                System.out.println(String.format(
+                    "CONGRATULATIONS! You are the new high score with an average of %.2f points per game; " +
+                    "the previous record was %.2f points per game on %s",
+                    currentAverage,
+                    highestAverage,
+                    formattedDateTime
+                ));
+            }
+            else if (currentAverage == highestAverage && highestAverage > 0.0)
+            {
+                System.out.println(String.format(
+                    "Tied the high score: %.2f points per game!",
+                    currentAverage
+                ));
+            }
+            else
+            {
+                final DateTimeFormatter formatter;
+                final String formattedDateTime;
+
+                formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd 'at' HH:mm:ss");
+                formattedDateTime = highestScore.getDateTimePlayed().format(formatter);
+
+                System.out.println(String.format(
+                    "You did not beat the high score of %.2f points per game from %s",
+                    highestAverage,
+                    formattedDateTime
+                ));
             }
         }
         catch (final IOException exception)
