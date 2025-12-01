@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__ollama-local__ollama_chat"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

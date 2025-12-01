@@ -135,23 +135,81 @@ Files to include in .zip:
 
 **DO NOT** include country .txt files in submission.
 
+## Current Session Progress (2025-11-30)
+
+### ✅ COMPLETED - WordGame Fixes
+- **Fixed play-again loop**: Added while loop in `play()` method
+- **Fixed high score messages**: Now shows averages (points per game) instead of totals
+- **Added methods**:
+  - `promptPlayAgain()` - Yes/No input validation
+  - `calculateAverage(Score)` - computes points per game
+  - `displaySessionStats()` - shows stats after each game
+- **Rewrote `checkAndAnnounceHighScore()`**: Shows proper format with previous record date/time
+- **Status**: WordGame fully functional with play-again and correct high score messages
+
+### ✅ COMPLETED - NumberGame Core Classes (5/6 done)
+User has configured JavaFX (not Swing) with javafx.controls, javafx.fxml in module path.
+
+**Created files:**
+1. ✅ `GridCell.java` - Interface for grid cells
+2. ✅ `SimpleGridCell.java` - Concrete GridCell implementation
+3. ✅ `AbstractGameBoard.java` - Abstract board with GridCell[] array (uses COMP2522 arrays requirement)
+4. ✅ `NumberGameBoard.java` - Concrete board with ascending order validation, has `hasValidPlacement()` method
+5. ✅ `GameStatistics.java` - Tracks wins/losses/placements, formats messages per PDF spec
+
+### 🚧 IN PROGRESS - NumberGame Main Class
+**Next step**: Create `NumberGame.java` JavaFX application
+
+**Key implementation details:**
+- Use `Platform.startup()` for JavaFX initialization (can only call once per JVM)
+- `play()` method blocks using CountDownLatch until window closes
+- 4×5 GridPane with Button[] array (20 buttons)
+- Generate int[] randomNumbers (20 values, 1-1000)
+- Current number displayed in Label at top
+- Button click → validate → place → check win/loss
+- Win: all 20 placed → Alert dialog with "Try Again"/"Quit"
+- Loss: `!board.hasValidPlacement(nextNumber)` → Alert dialog
+- Quit → print statistics message → close window → return to Main menu
+
+**Constants needed**: GRID_ROWS=4, GRID_COLUMNS=5, TOTAL_NUMBERS=20, MIN=1, MAX=1000
+
+**Architecture satisfies OOP requirements:**
+- Interface: GridCell ✓
+- Abstract class: AbstractGameBoard ✓
+- Concrete classes: NumberGameBoard, SimpleGridCell ✓
+
+### ❌ PENDING - MyGame
+- Design and implement MyGame with AI assistance
+- Create applications.txt mapping lessons to MyGame code
+- Create prompts.txt reflection (2 pages)
+
+### ❌ PENDING - Videos (CRITICAL - 50 points, 0 if missing!)
+- Video 1 (Technical): 90-150 seconds
+- Video 2 (Marketing): 90-120 seconds
+
 ## Implementation Checklist
 
 ### Core WordGame Components
-- [ ] Complete Main.java menu system with input validation
-- [ ] Create Country.java class with name, capital, and facts array
-- [ ] Create World.java class with HashMap for country storage
-- [ ] Create Score.java class with date, games, attempts tracking
-- [ ] Implement WordGame file loading from countries/*.txt
-- [ ] Implement WordGame question generation (3 types: capital→country, country→capital, fact→country)
-- [ ] Implement WordGame scoring and game loop
-- [ ] Implement score.txt file writing and high score tracking
-- [ ] Pass all ScoreTest.java unit tests
+- [x] Complete Main.java menu system with input validation
+- [x] Create Country.java class with name, capital, and facts array
+- [x] Create World.java class with HashMap for country storage
+- [x] Create Score.java class with date, games, attempts tracking
+- [x] Implement WordGame file loading from countries/*.txt
+- [x] Implement WordGame question generation (3 types)
+- [x] Implement WordGame scoring and game loop with play-again
+- [x] Implement score.txt file writing and high score tracking with averages
+- [x] Pass all ScoreTest.java unit tests
 
 ### NumberGame Components
-- [ ] Create NumberGame GUI with 4×5 grid (20 buttons)
-- [ ] Implement NumberGame interface, abstract class, concrete class
-- [ ] Implement NumberGame logic and win/loss detection
+- [x] Create GridCell interface
+- [x] Create SimpleGridCell concrete implementation
+- [x] Create AbstractGameBoard abstract class with GridCell[] array
+- [x] Create NumberGameBoard concrete class with placement validation
+- [x] Create GameStatistics class for tracking wins/losses
+- [ ] **NEXT: Create NumberGame.java JavaFX main class** (code written, needs to be saved)
+- [ ] Test NumberGame functionality end-to-end
+- [ ] Compile with JavaFX: `javac --module-path "C:\javafx-sdk21.0.9\lib" --add-modules javafx.controls,javafx.fxml -d out src/code/ca/bcit/cst/comp2522/termproject/*.java`
+- [ ] Run: `java --module-path "C:\javafx-sdk21.0.9\lib" --add-modules javafx.controls -cp out ca.bcit.cst.comp2522.termproject.Main`
 
 ### MyGame Components
 - [ ] Design and implement MyGame with AI assistance
