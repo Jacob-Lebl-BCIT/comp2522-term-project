@@ -1,7 +1,15 @@
 package ca.bcit.cst.comp2522.termproject;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Tracks scoring statistics for WordGame sessions including date played,
@@ -158,10 +166,11 @@ public final class Score
      * Scoring formula: first attempt correct = 2 points,
      *                  second attempt correct = 1 point,
      *                  incorrect after two attempts = 0 points.
+     * This is the primary method for accessing the calculated score.
      *
      * @return the total points earned
      */
-    public int calculateTotalScore()
+    public int getScore()
     {
         final int firstAttemptPoints;
         final int secondAttemptPoints;
@@ -177,18 +186,19 @@ public final class Score
     }
 
     /**
-     * Formats this score as a multi-line string suitable for writing to score.txt.
-     * Format matches the specification:
+     * Returns a string representation of this score in file format.
+     * Format matches the specification required for score.txt and tests:
      * Date and Time: yyyy-MM-dd HH:mm:ss
      * Games Played: N
      * Correct First Attempts: N
      * Correct Second Attempts: N
      * Incorrect Attempts: N
-     * Total Score: N points
+     * Score: N points
      *
      * @return a formatted string representation of this score
      */
-    public String toFileFormat()
+    @Override
+    public String toString()
     {
         final DateTimeFormatter formatter;
         final String            formattedDateTime;
@@ -197,7 +207,7 @@ public final class Score
 
         formatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT_PATTERN);
         formattedDateTime = dateTimePlayed.format(formatter);
-        totalScore = calculateTotalScore();
+        totalScore = getScore();
 
         builder = new StringBuilder();
         builder.append("Date and Time: ").append(formattedDateTime).append("\n");
@@ -205,31 +215,158 @@ public final class Score
         builder.append("Correct First Attempts: ").append(correctFirstAttempt).append("\n");
         builder.append("Correct Second Attempts: ").append(correctSecondAttempt).append("\n");
         builder.append("Incorrect Attempts: ").append(incorrectTwoAttempts).append("\n");
-        builder.append("Total Score: ").append(totalScore).append(" points\n");
+        builder.append("Score: ").append(totalScore).append(" points\n");
 
         return builder.toString();
     }
 
     /**
-     * Returns a string representation of this score for debugging.
-     * Format: "Score{date=..., games=N, total=N points}"
+     * Appends a score to the specified file.
+     * Opens the file in append mode and writes the score using its toString() method.
+     * Creates the file if it doesn't exist. If an IOException occurs during writing,
+     * it is propagated to the caller.
      *
-     * @return a string representation of this score
+     * @param score    the Score object to append to the file
+     * @param filename the name of the file to append to
+     * @throws IOException if an I/O error occurs while writing to the file
      */
-    @Override
-    public String toString()
+    public static void appendScoreToFile(final Score score, final String filename) throws IOException
     {
-        final DateTimeFormatter formatter;
-        final String            formattedDateTime;
-        final int               totalScore;
+        final BufferedWriter writer;
+        final String         scoreData;
 
-        formatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT_PATTERN);
-        formattedDateTime = dateTimePlayed.format(formatter);
-        totalScore = calculateTotalScore();
+        writer = new BufferedWriter(new FileWriter(filename, true));
 
-        return "Score{date=" + formattedDateTime +
-               ", games=" + gamesPlayed +
-               ", total=" + totalScore + " points}";
+        try
+        {
+            scoreData = score.toString();
+            writer.write(scoreData);
+            writer.flush();
+        }
+        finally
+        {
+            writer.close();
+        }
+    }
+
+    /**
+     * Reads all scores from the specified file.
+     * Parses the file line-by-line, reading 6-line blocks for each score:
+     * 1. Date and Time: yyyy-MM-dd HH:mm:ss
+     * 2. Games Played: N
+     * 3. Correct First Attempts: N
+     * 4. Correct Second Attempts: N
+     * 5. Incorrect Attempts: N
+     * 6. Score: N points
+     *
+     * Returns an empty list if the file doesn't exist or is empty.
+     * Skips malformed entries and continues parsing.
+     *
+     * @param filename the name of the file to read scores from
+     * @return a List of Score objects read from the file
+     * @throws IOException if an I/O error occurs while reading from the file
+     */
+    public static List<Score> readScoresFromFile(final String filename) throws IOException
+    {
+        final File         file;
+        final List<Score>  scores;
+
+        file = new File(filename);
+        scores = new ArrayList<>();
+
+        if (!file.exists())
+        {
+            return scores;
+        }
+
+        final BufferedReader reader;
+        reader = new BufferedReader(new FileReader(file));
+
+        try
+        {
+            String line;
+
+            while ((line = reader.readLine()) != null)
+            {
+                if (line.trim().isEmpty())
+                {
+                    continue;
+                }
+
+                if (line.startsWith("Date and Time: "))
+                {
+                    final Score parsedScore;
+                    parsedScore = parseScoreEntry(line, reader);
+
+                    if (parsedScore != null)
+                    {
+                        scores.add(parsedScore);
+                    }
+                }
+            }
+        }
+        finally
+        {
+            reader.close();
+        }
+
+        return scores;
+    }
+
+    /**
+     * Parses a single score entry from the file.
+     * Reads the date/time line (already provided) and the next 5 lines
+     * to construct a Score object. Returns null if parsing fails.
+     *
+     * @param dateTimeLine the "Date and Time: ..." line
+     * @param reader       the BufferedReader to read remaining lines from
+     * @return a Score object if parsing succeeds, null otherwise
+     * @throws IOException if an I/O error occurs while reading
+     */
+    private static Score parseScoreEntry(final String dateTimeLine,
+                                          final BufferedReader reader) throws IOException
+    {
+        try
+        {
+            final DateTimeFormatter formatter;
+            final LocalDateTime     dateTime;
+            final String            gamesLine;
+            final String            firstAttemptsLine;
+            final String            secondAttemptsLine;
+            final String            incorrectLine;
+            final String            scoreLine;
+            final int               gamesPlayed;
+            final int               correctFirstAttempts;
+            final int               correctSecondAttempts;
+            final int               incorrectAttempts;
+
+            formatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT_PATTERN);
+            dateTime = LocalDateTime.parse(dateTimeLine.substring("Date and Time: ".length()), formatter);
+
+            gamesLine = reader.readLine();
+            firstAttemptsLine = reader.readLine();
+            secondAttemptsLine = reader.readLine();
+            incorrectLine = reader.readLine();
+            scoreLine = reader.readLine();
+
+            if (gamesLine == null || firstAttemptsLine == null ||
+                secondAttemptsLine == null || incorrectLine == null || scoreLine == null)
+            {
+                return null;
+            }
+
+            gamesPlayed = Integer.parseInt(gamesLine.substring("Games Played: ".length()));
+            correctFirstAttempts = Integer.parseInt(firstAttemptsLine.substring("Correct First Attempts: ".length()));
+            correctSecondAttempts = Integer.parseInt(secondAttemptsLine.substring("Correct Second Attempts: ".length()));
+            incorrectAttempts = Integer.parseInt(incorrectLine.substring("Incorrect Attempts: ".length()));
+
+            return new Score(dateTime, gamesPlayed, correctFirstAttempts,
+                           correctSecondAttempts, incorrectAttempts);
+        }
+        catch (final Exception exception)
+        {
+            return null;
+        }
     }
 
     /**

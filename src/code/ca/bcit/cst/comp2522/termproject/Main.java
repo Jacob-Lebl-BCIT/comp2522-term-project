@@ -62,9 +62,16 @@ public class Main
                 }
                 else if (userChoice == CHOICE_WORD)
                 {
-                    final WordGame wordGame;
-                    wordGame = new WordGame();
-                    wordGame.play();
+                    try
+                    {
+                        final WordGame wordGame;
+                        wordGame = new WordGame();
+                        wordGame.play();
+                    }
+                    catch (final IllegalStateException exception)
+                    {
+                        System.out.println("Error: " + exception.getMessage());
+                    }
                 }
                 else if (userChoice == CHOICE_NUMBER)
                 {

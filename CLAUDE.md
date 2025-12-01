@@ -121,7 +121,7 @@ Fact line 3
 
 - Only use Java concepts taught in COMP2522
 - No ArrayList in declarations (use `List<>` interface)
-- No advanced features (streams, lambdas, etc.) unless explicitly taught
+- No advanced features unless explicitly taught (streams and lambdas were taught) (switch case statements were not taught)
 - Must use arrays (not ArrayList) for Country facts and NumberGame grid
 - DateTime handling: Use `LocalDateTime` and `DateTimeFormatter` as shown in project spec
 
