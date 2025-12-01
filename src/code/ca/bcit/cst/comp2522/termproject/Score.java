@@ -19,7 +19,7 @@ import java.util.List;
  * scoring formula: first attempt = 2 points, second attempt = 1 point.
  *
  * @author Jacob
- * @version 2025-11-30
+ * @version 1.0
  */
 public final class Score
 {

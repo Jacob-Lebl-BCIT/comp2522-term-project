@@ -15,7 +15,7 @@ import java.util.Set;
  * to be populated from country data files at game initialization.
  *
  * @author Jacob
- * @version 2025-11-30
+ * @version 1.0
  */
 public final class World
 {

@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Integrates with Main.java menu system using a blocking play() method.
  *
  * @author Jacob
- * @version 2025-12-01
+ * @version 1.0
  */
 public final class NumberGame
 {

@@ -178,10 +178,11 @@ User has configured JavaFX (not Swing) with javafx.controls, javafx.fxml in modu
 - Abstract class: AbstractGameBoard ✓
 - Concrete classes: NumberGameBoard, SimpleGridCell ✓
 
-### ❌ PENDING - MyGame
-- Design and implement MyGame with AI assistance
-- Create applications.txt mapping lessons to MyGame code
-- Create prompts.txt reflection (2 pages)
+### ✅ COMPLETED - MyGame Documentation
+- ✅ MyGame implementation complete (from previous session)
+- ✅ Created COMP2522_Syllabus.md - Course schedule reference
+- ✅ Created applications.txt - Maps all 12 lessons to MyGame code (10 points)
+- ⏳ PENDING: Create prompts.txt reflection (2 pages)
 
 ### ❌ PENDING - Videos (CRITICAL - 50 points, 0 if missing!)
 - Video 1 (Technical): 90-150 seconds
@@ -212,9 +213,9 @@ User has configured JavaFX (not Swing) with javafx.controls, javafx.fxml in modu
 - [ ] Run: `java --module-path "C:\javafx-sdk21.0.9\lib" --add-modules javafx.controls -cp out ca.bcit.cst.comp2522.termproject.Main`
 
 ### MyGame Components
-- [ ] Design and implement MyGame with AI assistance
-- [ ] Create applications.txt mapping lessons to MyGame code
-- [ ] Create prompts.txt reflection (2 pages)
+- [x] Design and implement MyGame with AI assistance
+- [x] Create applications.txt mapping lessons to MyGame code (10 points - CRITICAL)
+- [ ] Create prompts.txt reflection (2 pages - 10 points)
 
 ## Notes
 

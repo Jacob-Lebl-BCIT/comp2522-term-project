@@ -8,7 +8,7 @@ package ca.bcit.cst.comp2522.termproject;
  * and all numbers after are larger.
  *
  * @author Jacob
- * @version 2025-11-30
+ * @version 1.0
  */
 public final class NumberGameBoard extends AbstractGameBoard
 {

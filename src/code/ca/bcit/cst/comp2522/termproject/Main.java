@@ -9,7 +9,7 @@ import java.util.Scanner;
  * The menu runs in an infinite loop until the user chooses to quit.
  *
  * @author Jacob
- * @version 2025-11-30
+ * @version 1.0
  */
 public class Main
 {

@@ -6,7 +6,7 @@ package ca.bcit.cst.comp2522.termproject;
  * placements per game. Provides formatted output matching PDF specification.
  *
  * @author Jacob
- * @version 2025-11-30
+ * @version 1.0
  */
 public final class GameStatistics
 {

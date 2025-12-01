@@ -7,7 +7,7 @@ package ca.bcit.cst.comp2522.termproject;
  * Instances are immutable after construction.
  *
  * @author Jacob
- * @version 2025-11-30
+ * @version 1.0
  */
 public final class Country
 {

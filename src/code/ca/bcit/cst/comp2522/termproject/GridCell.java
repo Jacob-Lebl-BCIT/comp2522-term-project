@@ -6,7 +6,7 @@ package ca.bcit.cst.comp2522.termproject;
  * whether a value can be placed in the cell according to game rules.
  *
  * @author Jacob
- * @version 2025-11-30
+ * @version 1.0
  */
 public interface GridCell
 {

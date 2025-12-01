@@ -6,7 +6,7 @@ package ca.bcit.cst.comp2522.termproject;
  * the cell is considered occupied and cannot be changed (immutable after first set).
  *
  * @author Jacob
- * @version 2025-11-30
+ * @version 1.0
  */
 public final class SimpleGridCell implements GridCell
 {

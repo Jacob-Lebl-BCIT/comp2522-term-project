@@ -7,7 +7,7 @@ package ca.bcit.cst.comp2522.termproject;
  * Subclasses must implement specific game rules for number placement.
  *
  * @author Jacob
- * @version 2025-11-30
+ * @version 1.0
  */
 public abstract class AbstractGameBoard
 {

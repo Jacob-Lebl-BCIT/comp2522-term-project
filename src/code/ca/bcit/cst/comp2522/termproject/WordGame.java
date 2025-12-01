@@ -16,7 +16,7 @@ import java.util.Scanner;
  * game sessions and saved to score.txt.
  *
  * @author Jacob
- * @version 2025-11-30
+ * @version 1.0
  */
 public final class WordGame
 {
