@@ -2,7 +2,9 @@ package ca.bcit.cst.comp2522.termproject;
 
 import java.util.Scanner;
 
-
+/**
+ * Offers a menu in the terminal (within an infinite loop) to select a choice of game.
+ */
 public class Main
 {
     private static final String QUIT_MESSAGE = "bye!";
@@ -13,6 +15,8 @@ public class Main
     private static final String CHOICE_MYGAME_GAME_FIRST_MESSAGE  = "Press M to play the ";
     private static final String CHOICE_MYGAME_GAME_SECOND_MESSAGE = " game.";
     private static final String CHOICE_QUIT_MESSAGE               = "Press Q to quit.";
+    private static final boolean MENU_NOT_DONE = false;
+    private static final boolean MENU_IS_DONE = true;
 
     private static final String MYGAME_NAME = "MyGame";
 
@@ -21,9 +25,15 @@ public class Main
     private static final String CHOICE_NUMBER = "n";
     private static final String CHOICE_MYGAME = "m";
 
+    /**
+     * main, runs the program.
+     * @param args unused.
+     */
     public static void main(final String[] args)
     {
-        boolean done = false;
+        boolean done;
+        done = MENU_NOT_DONE;
+
         String choice;
 
         try (Scanner scanner = new Scanner(System.in))
@@ -37,7 +47,7 @@ public class Main
                 if (choice.equalsIgnoreCase(CHOICE_QUIT))
                 {
                     System.out.println(QUIT_MESSAGE);
-                    break;
+                    done = MENU_IS_DONE;
                 }
 
             }
