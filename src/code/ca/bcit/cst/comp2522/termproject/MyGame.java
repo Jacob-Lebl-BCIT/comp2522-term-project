@@ -65,6 +65,9 @@ public final class MyGame
     private CountDownLatch windowCloseLatch;
     private Timeline testTimer;
     private int timeRemaining;
+    private ImageView questionImageView;
+    private Label questionNumberLabel;
+    private Label timerLabel;
 
     /**
      * Constructs a new MyGame instance.
@@ -361,17 +364,55 @@ public final class MyGame
     /**
      * Displays the current test question (letter).
      * Loads and shows ASL handshape image.
+     * Updates the UI with the new letter image.
      *
      * @param letter the letter to display
      */
     private void displayQuestion(final Character letter)
     {
-        // Question display is handled by showTestScreen() which updates with current letter
+        if(questionImageView == null)
+        {
+            return;
+        }
+
+        Platform.runLater(() -> {
+            try
+            {
+                final String filename;
+                filename = LETTERS_DIRECTORY + "/" + Character.toLowerCase(letter) + IMAGE_EXTENSION;
+
+                final FileInputStream imageStream;
+                imageStream = new FileInputStream(filename);
+
+                final Image image;
+                image = new Image(imageStream);
+
+                questionImageView.setImage(image);
+
+                if(questionNumberLabel != null)
+                {
+                    questionNumberLabel.setText(String.format("Question %d/%d",
+                                                             currentTest.getCurrentQuestionNumber(),
+                                                             currentTest.getTotalQuestionsCount()));
+                }
+
+                if(timerLabel != null)
+                {
+                    timerLabel.setText(String.format("Time: %d", currentTest.getTimeLimitSeconds()));
+                }
+            }
+            catch(final FileNotFoundException e)
+            {
+                System.err.println("Image not found for letter: " + letter);
+                questionImageView.setImage(null);
+            }
+        });
     }
 
     /**
      * Shows the test screen with ASL image and answer input.
      * Demonstrates lambda expressions and image loading.
+     * Stores references to UI components for later updates.
      */
     private void showTestScreen()
     {
@@ -383,25 +424,22 @@ public final class MyGame
         topBox = new VBox(SPACING_PIXELS);
         topBox.setAlignment(Pos.CENTER);
 
-        final Label questionNumberLabel;
         questionNumberLabel = new Label(String.format("Question %d/%d",
-                                                     currentTest.getCurrentQuestionNumber(),
-                                                     currentTest.getTotalQuestionsCount()));
+                                                      currentTest.getCurrentQuestionNumber(),
+                                                      currentTest.getTotalQuestionsCount()));
         questionNumberLabel.setStyle("-fx-font-size: 18px;");
 
-        final Label timerLabel;
         timerLabel = new Label("Time: 5");
         timerLabel.setStyle("-fx-font-size: 16px;");
 
         topBox.getChildren().addAll(questionNumberLabel, timerLabel);
 
-        final ImageView imageView;
-        imageView = loadLetterImage(currentTest.getCurrentLetter());
+        questionImageView = loadLetterImage(currentTest.getCurrentLetter());
 
         final VBox centerBox;
         centerBox = new VBox(SPACING_PIXELS);
         centerBox.setAlignment(Pos.CENTER);
-        centerBox.getChildren().add(imageView);
+        centerBox.getChildren().add(questionImageView);
 
         final HBox bottomBox;
         bottomBox = new HBox(SPACING_PIXELS);
@@ -441,14 +479,18 @@ public final class MyGame
     /**
      * Loads ASL handshape image for specified letter.
      * Demonstrates file I/O and error handling.
+     * Creates a placeholder label if image is not found.
      *
      * @param letter the letter to load image for
-     * @return ImageView containing the letter image
+     * @return ImageView containing the letter image or placeholder
      */
     private ImageView loadLetterImage(final char letter)
     {
         final ImageView imageView;
         imageView = new ImageView();
+        imageView.setFitWidth(IMAGE_SIZE_PIXELS);
+        imageView.setFitHeight(IMAGE_SIZE_PIXELS);
+        imageView.setPreserveRatio(true);
 
         try
         {
@@ -462,15 +504,11 @@ public final class MyGame
             image = new Image(imageStream);
 
             imageView.setImage(image);
-            imageView.setFitWidth(IMAGE_SIZE_PIXELS);
-            imageView.setFitHeight(IMAGE_SIZE_PIXELS);
-            imageView.setPreserveRatio(true);
         }
         catch(final FileNotFoundException e)
         {
-            final Label errorLabel;
-            errorLabel = new Label("Image not found: " + letter);
-
+            System.err.println("Image not found for letter " + letter + ": " + LETTERS_DIRECTORY + "/" +
+                             Character.toLowerCase(letter) + IMAGE_EXTENSION);
             imageView.setImage(null);
         }
 
@@ -480,6 +518,7 @@ public final class MyGame
     /**
      * Starts the countdown timer for the current question.
      * Uses lambda expression for timer action.
+     * Updates timer label on each tick.
      */
     private void startQuestionTimer()
     {
@@ -487,6 +526,11 @@ public final class MyGame
 
         testTimer = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
             timeRemaining--;
+
+            if(timerLabel != null)
+            {
+                Platform.runLater(() -> timerLabel.setText("Time: " + timeRemaining));
+            }
 
             if(timeRemaining <= 0)
             {
